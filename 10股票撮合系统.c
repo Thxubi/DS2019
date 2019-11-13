@@ -68,19 +68,118 @@ void apply()
 	temp.id = ++id;
 	printf("orderid: %04d\n", temp.id);
 	if(temp.bors == 'b')
-		INQueByHTOL(&buy, temp);
+	{
+		Ptr current = sell.front;
+		while(current != sell.rear)
+		{
+			current = current->next;
+			if(current->data.quantity == 0)
+				continue;
+			if(current->data.code == temp.code && current->data.price <= temp.price)
+			{
+				int qu;
+				if(current->data.quantity >= temp.quantity)
+				{
+					qu = temp.quantity;
+					current->data.quantity -= qu;
+					temp.quantity = 0;
+				}
+				else
+				{
+					qu = current->data.quantity;
+					current->data.quantity = 0;
+					temp.quantity -= qu;
+				}
+				printf("deal--price:%6.1f  quantity:%4d  buyorder:%04d  sellorder:%04d\n", (temp.price+current->data.price)/2, qu, temp.id, current->data.id);
+				if(temp.quantity == 0) break;
+			}
+		}
+		if(temp.quantity != 0)
+			INQueByHTOL(&buy, temp);
+	}
 	else
-		INQueByLTOH(&sell, temp);
+	{
+		Ptr current = buy.front;
+		while(current != buy.rear)
+		{
+			current = current->next;
+			if(current->data.quantity == 0)
+				continue;
+			if(current->data.code == temp.code && current->data.price >= temp.price)
+			{
+				int qu;
+				if(current->data.quantity >= temp.quantity)
+				{
+					qu = temp.quantity;
+					current->data.quantity -= qu;
+					temp.quantity = 0;
+				}
+				else
+				{
+					qu = current->data.quantity;
+					current->data.quantity = 0;
+					temp.quantity -= qu;
+				}
+				printf("deal--price:%6.1f  quantity:%4d  sellorder:%04d  buyorder:%04d\n", (temp.price+current->data.price)/2, qu, temp.id, current->data.id);
+				if(temp.quantity == 0) break;
+			}
+		}
+		if(temp.quantity != 0)
+			INQueByLTOH(&sell, temp);
+	}
 }
 
 void search()
 {
-	;
+	int scode;
+	Ptr current;
+	scanf("%d", &scode);
+	printf("buy orders:\n");
+	for(current = buy.front; current != buy.rear;)
+	{
+		current = current->next;
+		if(current->data.code == scode && current->data.quantity != 0)
+			printf("orderid: %04d, stockid:%04d, price: %6.1f, quantity: %4d, b/s: %c\n", current->data.id, current->data.code, current->data.price, current->data.quantity, current->data.bors);
+	}
+	printf("sell orders:\n");
+	for(current = sell.front; current != sell.rear;)
+	{
+		current = current->next;
+		if(current->data.code == scode && current->data.quantity != 0)
+			printf("orderid: %04d, stockid:%04d, price: %6.1f, quantity: %4d, b/s: %c\n", current->data.id, current->data.code, current->data.price, current->data.quantity, current->data.bors);
+	}
 }
 
 void undo()
 {
-	;
+	int uid, flag = 1;
+	scanf("%d", &uid);
+	Ptr current;
+	for(current = buy.front; current != buy.rear;)
+	{
+		current = current->next;
+		if(current->data.id == uid && current->data.quantity != 0)
+		{
+			printf("deleted order:orderid: %04d, stockid:%04d, price: %6.1f, quantity: %4d, b/s: %c\n", current->data.id, current->data.code, current->data.price, current->data.quantity, current->data.bors);
+			current->data.quantity = 0;
+			flag = 0;
+			break;
+		}
+	}
+	if(flag)
+		for(current = sell.front; current != sell.rear;)
+		{
+			current = current->next;
+			if(current->data.id == uid && current->data.quantity != 0)
+			{
+				printf("deleted order:orderid: %04d, stockid:%04d, price: %6.1f, quantity: %4d, b/s: %c\n", current->data.id, current->data.code, current->data.price, current->data.quantity, current->data.bors);
+				flag = 0;
+				break;
+			}
+		}
+	
+	if(flag)
+		printf("not found\n");
 }
 
 void INIT()
@@ -119,6 +218,7 @@ void INQueByLTOH(LinkQueue *Q, Data data)			//in queue by low to high
 				temp->next = p;
 				break;
 			}
+			temp = temp->next;
 		}
 	}
 }
@@ -147,6 +247,7 @@ void INQueByHTOL(LinkQueue *Q, Data data)			//in queue by high to low
 				temp->next = p;
 				break;
 			}
+			temp = temp->next;
 		}
 	}
 }
