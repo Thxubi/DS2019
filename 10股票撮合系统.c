@@ -21,7 +21,8 @@ typedef struct {
 } LinkQueue;
 
 void INITQue(LinkQueue *Q);
-void INQue(LinkQueue *Q, Data data);
+void INQueByHTOL(LinkQueue *Q, Data data);
+void INQueByLTOH(LinkQueue *Q, Data data);
 int OUTQue(LinkQueue *Q, Data *popdata);
 int QueLength(LinkQueue *Q);
 void FREEQue(LinkQueue *Q);
@@ -67,9 +68,9 @@ void apply()
 	temp.id = ++id;
 	printf("orderid: %04d\n", temp.id);
 	if(temp.bors == 'b')
-		INQue(&buy, temp);
+		INQueByHTOL(&buy, temp);
 	else
-		INQue(&sell, temp);
+		INQueByLTOH(&sell, temp);
 }
 
 void search()
@@ -94,16 +95,60 @@ void INITQue(LinkQueue *Q)
 	Q->front->next = NULL;
 }
 
-void INQue(LinkQueue *Q, Data data)
+void INQueByLTOH(LinkQueue *Q, Data data)			//in queue by low to high
 {
-	Ptr p;
+	Ptr p, temp;
 	p = (Ptr)malloc(sizeof(Node));
 	//检查操作 
 	p->data = data;
 	p->next = NULL;
 	
-	Q->rear->next = p;
-	Q->rear = p;
+	temp = Q->front;
+	if(temp == Q->rear || Q->rear->data.price <= p->data.price)
+	{
+		Q->rear->next = p;
+		Q->rear = p;
+	}
+	else
+	{
+		while(temp != Q->rear)
+		{
+			if(p->data.price < temp->next->data.price)
+			{
+				p->next = temp->next;
+				temp->next = p;
+				break;
+			}
+		}
+	}
+}
+
+void INQueByHTOL(LinkQueue *Q, Data data)			//in queue by high to low
+{
+	Ptr p, temp;
+	p = (Ptr)malloc(sizeof(Node));
+	//检查操作 
+	p->data = data;
+	p->next = NULL;
+	
+	temp = Q->front;
+	if(temp == Q->rear || Q->rear->data.price >= p->data.price)
+	{
+		Q->rear->next = p;
+		Q->rear = p;
+	}
+	else
+	{
+		while(temp != Q->rear)
+		{
+			if(p->data.price > temp->next->data.price)
+			{
+				p->next = temp->next;
+				temp->next = p;
+				break;
+			}
+		}
+	}
 }
 
 int OUTQue(LinkQueue *Q, Data *popdata)
