@@ -23,7 +23,6 @@ typedef struct {
 void INITQue(LinkQueue *Q);
 void INQueByHTOL(LinkQueue *Q, Data data);
 void INQueByLTOH(LinkQueue *Q, Data data);
-int OUTQue(LinkQueue *Q, Data *popdata);
 int QueLength(LinkQueue *Q);
 void FREEQue(LinkQueue *Q);
 void INIT();
@@ -173,6 +172,7 @@ void undo()
 			if(current->data.id == uid && current->data.quantity != 0)
 			{
 				printf("deleted order:orderid: %04d, stockid:%04d, price: %6.1f, quantity: %4d, b/s: %c\n", current->data.id, current->data.code, current->data.price, current->data.quantity, current->data.bors);
+				current->data.quantity = 0;
 				flag = 0;
 				break;
 			}
@@ -250,20 +250,6 @@ void INQueByHTOL(LinkQueue *Q, Data data)			//in queue by high to low
 			temp = temp->next;
 		}
 	}
-}
-
-int OUTQue(LinkQueue *Q, Data *popdata)
-{
-	if(Q->front == Q->rear) return 0;
-	Ptr p;
-	Data e;
-	p = Q->front->next;
-	e = p->data;
-	Q->front->next = p->next;
-	if(Q->rear == p) Q->rear = Q->front;
-	free(p);
-	*popdata = e;
-	return 1;
 }
 
 int QueLength(LinkQueue *Q)
