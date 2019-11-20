@@ -35,25 +35,24 @@ int main()
 		
 		int maxj;
 		if(i < A.mu)
-			maxj = A.rpos[i+1] - 1;
+			maxj = A.rpos[i+1];
 		else
-			maxj = A.tu;
+			maxj = A.tu + 1;
 		
-		for(int j = A.rpos[i]; j <= maxj; j++)
+		for(int j = A.rpos[i]; j < maxj; j++)
 		{
 			int bi = A.data[j].j;
 			
 			int maxk;
 			if(bi < B.mu)
-				maxk = B.rpos[bi+1] - 1;
+				maxk = B.rpos[bi+1];
 			else
-				maxk = B.tu;
+				maxk = B.tu + 1;
 			 
-			for(int k = B.rpos[bi]; k <= maxk; k++)
+			for(int k = B.rpos[bi]; k < maxk; k++)
 			{
 				ccol = B.data[k].j;
 				ctemp[ccol] += A.data[j].value * B.data[k].value;
-				printf("+%d %d: %d * %d = %d\n",bi, i, j, k, ctemp[ccol]);
 			}
 		}	
 		for(ccol = 1; ccol <= Q.nu; ccol++)
@@ -88,31 +87,22 @@ void Input()
 	for(int i = 2; i <= A.mu; i++)
 	{
 		temp = A.rpos[i];
-		if(num != 0)	
-			A.rpos[i] = A.rpos[i-1] + num;
-		else
-			A.rpos[i] = 0;
+		A.rpos[i] = A.rpos[i-1] + num;
 		num = temp;
-		printf("\t\t\t%d\n", A.rpos[i]);
 	}
 	scanf("%d%d%d", &B.mu, &B.nu, &B.tu);
 	memset(B.rpos, 0, (B.mu+1)*sizeof(int));
 	for(int i = 1; i <= B.tu; i++)
 	{
 		scanf("%d%d%d", &B.data[i].i, &B.data[i].j, &B.data[i].value);
-		
+		B.rpos[B.data[i].i] ++;
 	}
 	num = B.rpos[1];
 	B.rpos[1] = 1;
 	for(int i = 2; i <= B.mu; i++)
 	{
 		temp = B.rpos[i];
-		if(num != 0)
-			B.rpos[i] = B.rpos[i-1] + num;
-		else
-			B.rpos[i] = 0;
-			
-		printf("\t\t\t%d\n", B.rpos[i]);
+		B.rpos[i] = B.rpos[i-1] + num;
 		num = temp;
 	}
 }
