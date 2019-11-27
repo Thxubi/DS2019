@@ -2,186 +2,118 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define MAXSSIZE 100
+#define MAXSSIZE 1000
+
 
 typedef struct bitnode {
 	char data;
 	struct bitnode *lchild, *rchild;
 } BiTNode, *BiTPtr;
 
-int CreateBiT(BiTPtr *T);
-void showBiT(BiTPtr Tree);
-void printtab(int n);
-void showl(BiTNode T, int n);
-void showr(BiTNode T, int n);
-void pres(BiTPtr T);
-void ins(BiTPtr T);
-void posts(BiTPtr T);
-void swapBiT(BiTPtr *T, int slen);
-int leafnum(BiTPtr T);
+typedef struct node {
+	BiTPtr data;
+	struct node * next;
+} Node, * Ptr;
 
+typedef struct {
+	Ptr front;		//队头 
+	Ptr rear;      //队尾 
+} LinkQueue;
+
+
+LinkQueue ls;
+
+void INITQue(LinkQueue *Q);
+void INQue(LinkQueue *Q, BiTPtr data);
+int OUTQue(LinkQueue *Q, BiTPtr *popdata);
+void CreateBiT(BiTPtr T, int m, int p, int length);
+void output(BiTPtr T); 
+char mid[MAXSSIZE+1], post[MAXSSIZE+1];
+
+int slen;
 int main()
 {
-	int slen;
-	BiTNode *Tree;					//Tree为BiTNode数组的头指针 
-	slen = CreateBiT(&Tree);
-	printf("BiTree\n");
-	showBiT(Tree);
-	printf("pre_sequence  : ");
-	pres(&Tree[0]);
-	printf("\nin_sequence   : ");
-	ins(&Tree[0]);
-	printf("\npost_sequence : ");
-	posts(&Tree[0]);
-	printf("\nNumber of leaf: %d\n", leafnum(&Tree[0])); 
-	swapBiT(&Tree, slen);
-	printf("BiTree swapped\n");
-	showBiT(Tree);
-	printf("pre_sequence  : ");
-	pres(&Tree[0]);
-	printf("\nin_sequence   : ");
-	ins(&Tree[0]);
-	printf("\npost_sequence : ");
-	posts(&Tree[0]);
-	printf("\n");
+	BiTNode Tree;
+	gets(mid);
+	gets(post);
+	slen = strlen(mid);
+	
+	CreateBiT(&Tree, 0, 0, slen);
+	
+	output(&Tree);
 	return 0;
 }
-
-int leafnum(BiTPtr T)
+void INITQue(LinkQueue *Q)
 {
-	int n = 0;
-	if(T == NULL)
+	Q->front = Q->rear = (Ptr)malloc(sizeof(Node));
+	Q->front->next = NULL;
+}
+
+void INQue(LinkQueue *Q, BiTPtr data)
+{
+	Ptr p;
+	p = (Ptr)malloc(sizeof(Node));
+	//检查操作 
+	p->data = data;
+	p->next = NULL;
+	
+	Q->rear->next = p;
+	Q->rear = p;
+}
+
+int OUTQue(LinkQueue *Q, BiTPtr *popdata)
+{
+	if(Q->front == Q->rear)
 		return 0;
-	else if(T->data != '#' && T->lchild == NULL && T->rchild == NULL)
-		n++;
-	else if(T->data != '#' && (T->lchild->data == '#' && T->rchild->data == '#'))
-		n++;
-	else
-	{
-		n += leafnum(T->lchild);
-		n += leafnum(T->rchild);
-	}
-	return n;
+	Ptr p;
+	BiTPtr e;
+	p = Q->front->next;
+	e = p->data;
+	Q->front->next = p->next;
+	if(Q->rear == p) Q->rear = Q->front;
+	free(p);
+	*popdata = e;
+	return 1;
 }
-void ins(BiTPtr T)
+
+void CreateBiT(BiTPtr T, int m, int p, int length)
 {
-	if(T == NULL)
+	T->data = post[p+length-1];
+	T->lchild = NULL;
+	T->rchild = NULL;
+	 
+	if(length == 1)
 		return;
-	else
-	{
-		ins(T->lchild);
-		if(T->data != '#')
-			printf("%c", T->data);
-		ins(T->rchild);
-	}
-}
-void posts(BiTPtr T)
-{
-	if(T == NULL)
-		return;
-	else
-	{	
 		
-		posts(T->lchild);
-		posts(T->rchild);
-		if(T->data != '#')
-			printf("%c", T->data);
-	}
-}
-void pres(BiTPtr T)
-{
-	if(T == NULL)
-		return;
-	else
+	int i;								//当前节点在mid中的位置
+	for(i = m; i < m + length; i++)
+		if(mid[i] == post[p+length-1])
+			break;
+	if(i-m > 0)
 	{
-		if(T->data != '#')
-			printf("%c", T->data);
-		pres(T->lchild);
-		pres(T->rchild);
+		T->lchild = (BiTPtr)malloc(sizeof(BiTNode));
+		CreateBiT(T->lchild, m, p, i-m);
+	}
+	if(length-i+m-1 > 0)
+	{
+		T->rchild = (BiTPtr)malloc(sizeof(BiTNode));
+		CreateBiT(T->rchild, i+1, p+i-m, length-i+m-1);
 	}
 }
 
-void swapBiT(BiTPtr *T, int slen)
+void output(BiTPtr T)
 {
-	for(int i = 0; i <= (slen/2)-1; i++)
+	INITQue(&ls);
+	INQue(&ls, T);
+	BiTPtr current;
+	while(slen-- && ls.front != ls.rear)
 	{
-		(*T)[i].rchild = &((*T)[2*i+1]);
-		if(2*i+2 <= slen-1)
-			(*T)[i].lchild = &((*T)[2*i+2]);
-		else
-			(*T)[i].lchild = NULL;
+		OUTQue(&ls, &current);
+		printf("%c", current->data);
+		if(current->lchild != NULL)
+			INQue(&ls, current->lchild);
+		if(current->rchild != NULL)
+			INQue(&ls, current->rchild);
 	}
+	printf("\n");
 }
-void showBiT(BiTPtr Tree)
-{
-	int n = 0;
-	if(Tree[0].data != '#')
-		printf("%c\n", Tree[0].data);
-	if(Tree[0].lchild != NULL)
-		showl(Tree[0], n);
-	if(Tree[0].rchild != NULL)
-		showr(Tree[0], n);
-}
-void showl(BiTNode T, int n)
-{
-	
-	T = *T.lchild;
-	if(T.data != '#')
-	{
-		printtab(++n);
-		printf("%c\n", T.data);
-	}
-	else
-	{
-		n++;
-	}
-	if(T.lchild != NULL)
-		showl(T, n);
-	if(T.rchild != NULL)
-		showr(T, n);
-}
-void showr(BiTNode T, int n)
-{
-	T = *T.rchild;
-	if(T.data != '#')
-	{
-		printtab(++n);
-		printf("%c\n", T.data);
-	}
-	else
-		n++;
-	if(T.lchild != NULL)
-		showl(T, n);
-	if(T.rchild != NULL)
-		showr(T, n);
-}
-void printtab(int n)
-{
-	for(int i = 0; i < n; i++)
-		printf("    ");
-}
-
-int CreateBiT(BiTPtr *T)
-{
-	char S[MAXSSIZE+1];
-	gets(S);				//数组输入
-	int slen = strlen(S);
-		
-	*T = (BiTPtr)malloc(sizeof(BiTNode)*(slen+1));
-	
-	for(int i = 0; i < slen; i++)
-	{
-		(*T)[i].data = S[i];
-		(*T)[i].lchild = NULL;
-		(*T)[i].rchild = NULL;
-	}
-	for(int i = 0; i <= (slen/2)-1; i++)
-	{
-		(*T)[i].lchild = &((*T)[2*i+1]);
-		if(2*i+2 <= slen-1)
-			(*T)[i].rchild = &((*T)[2*i+2]);
-	}
-	
-	return slen;
-}
-
