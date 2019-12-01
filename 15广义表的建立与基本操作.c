@@ -13,8 +13,8 @@ typedef struct node {
 
 
 char* CreateGList( GPtr L, char *S );		// 根据字符串 S 表示的广义表内容建立广义表数据结构；
-GList GetHead( GPtr L);					// 取表头运算
-GList GetTail( GPtr L);					// 取表尾运算
+GList GetHead( GPtr L);						// 取表头运算
+GList GetTail( GPtr L);						// 取表尾运算
 void DestroyGList( GPtr L);					// 销毁广义表 L
 void PrintGList( GPtr L);					// 显示广义表 L 内容
 void INITGList(GPtr L);
