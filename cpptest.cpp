@@ -1,23 +1,13 @@
-#include<cstdio>
-#include<vector>
-#include<queue>
-using namespace std;
-int main()
-{
-    int D[10];
-    priority_queue<int,vector<int> >T;//ÕâÀï×¢ÒâÒª¶à´òÒ»¸ö¿Õ¸ñ
-    for(int i=0;i<10;i++)
-    {
-        D[i]=(i*10/3+372)%20;//ËæÒâ»ñÈ¡10¸öÊı
-        printf("%d ",D[i]);
-        T.push(D[i]);
-    }
-    printf("\n----------·Ö¸îÏß-----------\n");
-    while(!T.empty())
-    {
-        int s=T.top();
-        printf("%d ",s);
-        T.pop();//³ö¶Ó
-    }
-    return 0;
+#include <iostream> 
+#include <random>
+using std::cout; using std::endl;      
+using std::default_random_engine;
+int main()      
+{       
+    default_random_engine e;       
+    for (size_t i = 0; i < 10; ++i) //ç”Ÿæˆåä¸ªéšæœºæ•°       
+       cout << e() << endl;       
+    cout << "Min random:" << e.min() << endl; //è¾“å‡ºè¯¥éšæœºæ•°å¼•æ“åºåˆ—çš„èŒƒå›´       
+    cout << "Max random:" << e.max() << endl;       
+    return 0;       
 }
